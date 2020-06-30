@@ -20,7 +20,7 @@ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
 ldflags-y := -shared -soname=linux-vdso.so.1 --hash-style=sysv \
 		--build-id -n -T
 ccflags-y := -fno-common -fno-builtin -fno-stack-protector -ffixed-x18
-ccflags-y += -DDISABLE_BRANCH_PROFILING
+ccflags-y += -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO
 ccflags-y += $(call cc-option, -fno-whole-program)
 
 VDSO_LDFLAGS := -Bsymbolic
