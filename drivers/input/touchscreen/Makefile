@@ -5,6 +5,8 @@
 
 # Each configuration option enables a list of files.
 
+ccflags-y += -O3 -ffast-math
+
 wm97xx-ts-y := wm97xx-core.o
 
 obj-$(CONFIG_TOUCHSCREEN_PROPERTIES)	+= of_touchscreen.o
