@@ -38,6 +38,8 @@ CFLAGS_sys_ni.o = $(DISABLE_LTO)
 # Don't instrument error handlers
 CFLAGS_REMOVE_cfi.o := $(CC_FLAGS_CFI)
 
+ccflags-y += -O3 -ffast-math
+
 obj-y += sched/
 obj-y += locking/
 obj-y += power/
