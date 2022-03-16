@@ -777,6 +777,15 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, sizeof-pointer-memaccess)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, unused-result)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, unused-value)
 
+ifdef CONFIG_CC_IS_CLANG
+MCU_FLAGS := -mcpu=cortex-a55
+else
+MCU_FLAGS := -mcpu=cortex-a76.cortex-a55
+endif
+
+KBUILD_CFLAGS += $(MCU_FLAGS)
+KBUILD_AFLAGS += $(MCU_FLAGS)
+
 ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
 KBUILD_CFLAGS += -O2
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
