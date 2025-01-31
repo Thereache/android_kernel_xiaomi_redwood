@@ -144,7 +144,7 @@ static void disable_seccomp(void)
  * If kernel devs not backport this, we'll enable this function
  * (Must put this on kernel_compat.c, but anyway)
  */
-#if !defined(KSU_GET_CRED_RCU)
+#ifndef KSU_GET_CRED_RCU
 static inline const struct cred *get_cred_rcu(const struct cred *cred)
 {
 	struct cred *nonconst_cred = (struct cred *) cred;
@@ -589,6 +589,9 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 	try_umount("/system", true, 0);
 	try_umount("/vendor", true, 0);
 	try_umount("/product", true, 0);
+	try_umount("/system_ext", true, 0);
+	
+	// try umount modules path
 	try_umount("/data/adb/modules", false, MNT_DETACH);
 
 	// try umount ksu temp path
