@@ -10,6 +10,17 @@
 #include "klog.h" // IWYU pragma: keep
 #include "kernel_compat.h" // Add check Huawei Device
 
+/* 
+ * Checks for CONFIG_UH, KDP and RKP
+ * This driver is act as anti-root prevention,
+ * created by Samsung. 
+ */
+#ifdef IS_SAMSUNG_KERNEL
+#if defined(CONFIG_UH) || defined(CONFIG_KDP) || defined(CONFIG_RKP)
+#error "CONFIG_UH, CONFIG_KDP and CONFIG_RKP is enabled! Please disable it before compile a kernel with KernelSU!"
+#endif
+#endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||	\
 	defined(CONFIG_IS_HW_HISI) ||	\
 	defined(CONFIG_KSU_ALLOWLIST_WORKAROUND)

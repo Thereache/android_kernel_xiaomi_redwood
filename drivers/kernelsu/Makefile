@@ -85,6 +85,12 @@ ccflags-y += -DKSU_MANAGER_PACKAGE=\"$(KSU_MANAGER_PACKAGE)\"
 $(info -- KernelSU Manager package name: $(KSU_MANAGER_PACKAGE))
 endif
 
+# checks is it Samsung kernels or not
+# TODO: Search for accurate detection
+ifeq ($(shell test -d $(srctree)/drivers/samsung; echo $$?),0)
+ccflags-y += -DIS_SAMSUNG_KERNEL
+endif
+
 #$(info -- Official KernelSU Manager signature size: $(KSU_EXPECTED_SIZE))
 #$(info -- Official KernelSU Manager signature hash: $(KSU_EXPECTED_HASH))
 #$(info -- Supported Unofficial Manager: rsuntk (Non-GKI), 5ec1cff (GKI)) 
