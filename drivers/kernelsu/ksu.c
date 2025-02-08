@@ -14,8 +14,8 @@
 #ifdef CONFIG_KSU_CMDLINE
 #include <linux/init.h>
 
+// use get_ksu_state()!
 unsigned int enable_kernelsu = 1; // enabled by default
-
 static int __init read_kernelsu_state(char *s)
 {
 	if (s)
@@ -24,16 +24,9 @@ static int __init read_kernelsu_state(char *s)
 }
 __setup("kernelsu.enabled=", read_kernelsu_state);
 
-unsigned int get_ksu_state(void)
-{
-	return enable_kernelsu;
-}
-
+bool get_ksu_state(void) { return enable_kernelsu >= 1; }
 #else
-unsigned int get_ksu_state(void)
-{
-	return 1;
-}
+bool get_ksu_state(void) { return true; }
 #endif /* CONFIG_KSU_CMDLINE */
 
 static struct workqueue_struct *ksu_workqueue;
@@ -65,7 +58,7 @@ extern void ksu_ksud_exit();
 int __init kernelsu_init(void)
 {
 #ifdef CONFIG_KSU_CMDLINE
-	if (enable_kernelsu < 1) {
+	if (!get_ksu_state()) {
 		pr_info_once("drivers is disabled.");
 		return 0;
 	}
@@ -106,8 +99,9 @@ int __init kernelsu_init(void)
 void kernelsu_exit(void)
 {
 #ifdef CONFIG_KSU_CMDLINE
-	if (enable_kernelsu < 1)
+	if (!get_ksu_state()) {
 		return;
+	}
 #endif
 	ksu_allowlist_exit();
 
