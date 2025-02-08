@@ -10,14 +10,10 @@
 #include "klog.h" // IWYU pragma: keep
 #include "kernel_compat.h" // Add check Huawei Device
 
-/* 
- * Checks for CONFIG_UH, KDP and RKP
- * This driver is act as anti-root prevention,
- * created by Samsung. 
- */
-#ifdef IS_SAMSUNG_KERNEL
+// Checks for UH, KDP and RKP
+#ifdef SAMSUNG_UH_DRIVER_EXIST
 #if defined(CONFIG_UH) || defined(CONFIG_KDP) || defined(CONFIG_RKP)
-#error "CONFIG_UH, CONFIG_KDP and CONFIG_RKP is enabled! Please disable it before compile a kernel with KernelSU!"
+#error "CONFIG_UH, CONFIG_KDP and CONFIG_RKP is enabled! Please disable or remove it before compile a kernel with KernelSU!"
 #endif
 #endif
 
@@ -123,7 +119,7 @@ struct file *ksu_filp_open_compat(const char *filename, int flags, umode_t mode)
 ssize_t ksu_kernel_read_compat(struct file *p, void *buf, size_t count,
 			       loff_t *pos)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) || defined(KSU_KERNEL_READ)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) || defined(KSU_OPTIONAL_KERNEL_READ)
 	return kernel_read(p, buf, count, pos);
 #else
 	loff_t offset = pos ? *pos : 0;
@@ -138,7 +134,7 @@ ssize_t ksu_kernel_read_compat(struct file *p, void *buf, size_t count,
 ssize_t ksu_kernel_write_compat(struct file *p, const void *buf, size_t count,
 				loff_t *pos)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) || defined(KSU_KERNEL_WRITE)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) || defined(KSU_OPTIONAL_KERNEL_WRITE)
 	return kernel_write(p, buf, count, pos);
 #else
 	loff_t offset = pos ? *pos : 0;
@@ -150,7 +146,7 @@ ssize_t ksu_kernel_write_compat(struct file *p, const void *buf, size_t count,
 #endif
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0) || defined(KSU_STRNCPY_FROM_USER_NOFAULT)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0) || defined(KSU_OPTIONAL_STRNCPY)
 long ksu_strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr,
 				   long count)
 {
