@@ -327,10 +327,12 @@ static struct kprobe newfstatat_kp = {
 };
 #endif
 
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 static struct kprobe fstatat64_kp = {
 	.symbol_name = SYS_FSTATAT64_SYMBOL,
 	.pre_handler = sys_newfstatat_handler_pre,
 };
+#endif
 
 #if 1
 static struct kprobe execve_kp = {
@@ -350,10 +352,12 @@ static struct kprobe execve_kp = {
 };
 #endif
 
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 static struct kprobe execve_compat_kp = {
 	.symbol_name = SYS_EXECVE_COMPAT_SYMBOL,
 	.pre_handler = sys_execve_handler_pre,
 };
+#endif
 
 static int pts_unix98_lookup_pre(struct kprobe *p, struct pt_regs *regs)
 {
@@ -382,12 +386,16 @@ void ksu_sucompat_init()
 	int ret;
 	ret = register_kprobe(&execve_kp);
 	pr_info("sucompat: execve_kp: %d\n", ret);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 	ret = register_kprobe(&execve_compat_kp);
 	pr_info("sucompat: execve_compat_kp: %d\n", ret);
+#endif
 	ret = register_kprobe(&newfstatat_kp);
 	pr_info("sucompat: newfstatat_kp: %d\n", ret);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 	ret = register_kprobe(&fstatat64_kp);
 	pr_info("sucompat: fstatat64_kp: %d\n", ret);
+#endif
 	ret = register_kprobe(&faccessat_kp);
 	pr_info("sucompat: faccessat_kp: %d\n", ret);
 	ret = register_kprobe(&pts_unix98_lookup_kp);
@@ -399,9 +407,13 @@ void ksu_sucompat_exit()
 {
 #ifdef KSU_HOOK_WITH_KPROBES
 	unregister_kprobe(&execve_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 	unregister_kprobe(&execve_compat_kp);
+#endif
 	unregister_kprobe(&newfstatat_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
 	unregister_kprobe(&fstatat64_kp);
+#endif
 	unregister_kprobe(&faccessat_kp);
 	unregister_kprobe(&pts_unix98_lookup_kp);
 #endif

@@ -16,16 +16,16 @@ config KSU_DEBUG
 	  Enable KernelSU debug mode.
 
 config KSU_ALLOWLIST_WORKAROUND
-        bool "KernelSU Session Keyring Init workaround"
-        depends on KSU
-        default n
-        help
-          Enable session keyring init workaround for problematic devices.
-          Useful for situations where the SU allowlist is not kept after a reboot.
+	bool "KernelSU Session init keyring workaround"
+    depends on KSU
+    default n
+    help
+      Enable session keyring init workaround for problematic devices.
+      Useful for situations where the SU allowlist is not kept after a reboot.
 
 config KSU_CMDLINE
 	bool "Enable KernelSU cmdline"
-	depends on KSU
+	depends on KSU && KSU != m
 	default n
 	help
 	  Enable a cmdline called kernelsu.enabled
@@ -41,6 +41,17 @@ config KSU_MANUAL_HOOK
 	  the hooks required by KernelSU, but instead hook them manually.
 	  This function only available on GKI kernels, non-GKI are not
 	  affected.
+	  
+config KSU_COMPAT_SYSCALL
+	bool "Enable compat syscall hook for KPROBES"
+	depends on KSU && KPROBES && !KSU_MANUAL_HOOK
+	default n
+	help
+	  KernelSU v0.9.3-v0.9.4 use more stable
+	  syscall hook for KPROBES. But this also bring some problems
+	  like su command didn't work for 32bit based app.
+	  If you encountered an issue with su command, try
+	  enable this option.
 
 menu "KernelSU - SUSFS"
 config KSU_SUSFS
