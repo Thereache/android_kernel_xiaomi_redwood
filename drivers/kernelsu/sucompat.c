@@ -424,7 +424,13 @@ extern bool ksu_devpts_hook;
 
 void ksu_susfs_disable_sus_su(void) {
 	enable_kprobe(&execve_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
+	enable_kprobe(&execve_compat_kp);
+#endif
 	enable_kprobe(&newfstatat_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
+	enable_kprobe(&fstatat64_kp);
+#endif
 	enable_kprobe(&faccessat_kp);
 	enable_kprobe(&pts_unix98_lookup_kp);
 	ksu_devpts_hook = false;
@@ -432,7 +438,13 @@ void ksu_susfs_disable_sus_su(void) {
 
 void ksu_susfs_enable_sus_su(void) {
 	disable_kprobe(&execve_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
+	disable_kprobe(&execve_compat_kp);
+#endif
 	disable_kprobe(&newfstatat_kp);
+#ifdef CONFIG_KSU_COMPAT_SYSCALL
+	disable_kprobe(&fstatat64_kp);
+#endif
 	disable_kprobe(&faccessat_kp);
 	disable_kprobe(&pts_unix98_lookup_kp);
 	ksu_devpts_hook = true;
