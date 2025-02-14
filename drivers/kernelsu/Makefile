@@ -96,8 +96,8 @@ ccflags-y += -DKSU_MANAGER_PACKAGE=\"$(KSU_MANAGER_PACKAGE)\"
 $(info -- KernelSU Manager package name: $(KSU_MANAGER_PACKAGE))
 endif
 
-#$(info -- Official KernelSU Manager signature size: $(KSU_EXPECTED_SIZE))
-#$(info -- Official KernelSU Manager signature hash: $(KSU_EXPECTED_HASH))
+#$(info -- KernelSU Manager signature size: $(KSU_EXPECTED_SIZE))
+#$(info -- KernelSU Manager signature hash: $(KSU_EXPECTED_HASH))
 #$(info -- Supported Unofficial Manager: rsuntk (Non-GKI), 5ec1cff (GKI)) 
 
 ccflags-y += -DEXPECTED_SIZE=$(KSU_EXPECTED_SIZE)

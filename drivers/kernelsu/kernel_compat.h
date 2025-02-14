@@ -20,6 +20,13 @@
 #endif
 #endif
 
+// Checks for UH, KDP and RKP
+#ifdef SAMSUNG_UH_DRIVER_EXIST
+#if defined(CONFIG_UH) || defined(CONFIG_KDP) || defined(CONFIG_RKP)
+#error "CONFIG_UH, CONFIG_KDP and CONFIG_RKP is enabled! Please disable or remove it before compile a kernel with KernelSU!"
+#endif
+#endif
+
 extern long ksu_strncpy_from_user_nofault(char *dst,
 					  const void __user *unsafe_addr,
 					  long count);
