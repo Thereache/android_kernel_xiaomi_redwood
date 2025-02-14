@@ -61,6 +61,9 @@ extern void ksu_ksud_exit();
 
 int __init ksu_kernelsu_init(void)
 {
+	pr_info("kernelsu.enabled=%d\n",
+		get_ksu_state());
+
 #ifdef CONFIG_KSU_CMDLINE
 	if (!get_ksu_state()) {
 		pr_info_once("drivers is disabled.");
