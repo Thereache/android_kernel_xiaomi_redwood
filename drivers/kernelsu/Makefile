@@ -74,13 +74,6 @@ ifeq ($(shell grep "ssize_t kernel_write" $(srctree)/fs/read_write.c | grep -q "
 ccflags-y += -DKSU_KERNEL_WRITE
 endif
 
-ifndef KSU_NEXT_EXPECTED_SIZE
-KSU_NEXT_EXPECTED_SIZE := 0x3e6
-endif
-ifndef KSU_NEXT_EXPECTED_HASH
-KSU_NEXT_EXPECTED_HASH := 79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7
-endif
-
 ifndef KSU_EXPECTED_SIZE
 KSU_EXPECTED_SIZE := 0x033b
 endif
@@ -96,8 +89,6 @@ endif
 
 $(info -- Official KernelSU Manager signature size: $(KSU_EXPECTED_SIZE))
 $(info -- Official KernelSU Manager signature hash: $(KSU_EXPECTED_HASH))
-$(info -- KernelSU Next Manager signature size: $(KSU_NEXT_EXPECTED_SIZE))
-$(info -- KernelSU Next Manager signature hash: $(KSU_NEXT_EXPECTED_HASH))
 $(info -- Supported Unofficial Manager: rsuntk (Non-GKI), 5ec1cff (GKI)) 
 
 ## For susfs stuff ##
@@ -109,9 +100,6 @@ else
 $(info -- You have not integrate susfs in your kernel.)
 $(info -- Read: https://gitlab.com/simonpunk/susfs4ksu)
 endif
-
-ccflags-y += -DEXPECTED_NEXT_SIZE=$(KSU_NEXT_EXPECTED_SIZE)
-ccflags-y += -DEXPECTED_NEXT_HASH=\"$(KSU_NEXT_EXPECTED_HASH)\"
 
 ccflags-y += -DEXPECTED_SIZE=$(KSU_EXPECTED_SIZE)
 ccflags-y += -DEXPECTED_HASH=\"$(KSU_EXPECTED_HASH)\"
