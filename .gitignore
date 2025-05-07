@@ -159,3 +159,5 @@ out
 AnyKernel3
 *.zip*
 b*.zip*
+build.sh
+work
