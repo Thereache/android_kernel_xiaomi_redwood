@@ -108,13 +108,10 @@ struct cam_cmd_i2c_info {
 /**
  * struct cam_ois_opcode - Contains OIS opcode
  *
- * @prog             :    OIS FW prog register address
- * @coeff            :    OIS FW coeff register address
- * @pheripheral      :    OIS pheripheral
- * @memory           :    OIS memory
- * @fw_addr_type     :    OIS FW addr type
- * @is_addr_increase :    OIS FW addr increase
- * others            :    OIS FW Upgrade related.
+ * @prog            :    OIS FW prog register address
+ * @coeff           :    OIS FW coeff register address
+ * @pheripheral     :    OIS pheripheral
+ * @memory          :    OIS memory
  */
 struct cam_ois_opcode {
 	__u32 prog;
@@ -122,7 +119,6 @@ struct cam_ois_opcode {
 	__u32 pheripheral;
 	__u32 memory;
 	__u8 fw_addr_type;
-	__u8 is_addr_increase;
 	__u8 is_addr_indata;
 	__u8 fwversion;
 	__u32 fwchecksumsize;
