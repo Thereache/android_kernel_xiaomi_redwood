@@ -26,10 +26,6 @@
 #include "dsi_parser.h"
 #include "mi_dsi_display.h"
 
-#ifdef CONFIG_DRM_SDE_EXPO
-#include "sde_expo_dim_layer.h"
-#endif
-
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
 #define INT_BASE_10 10
 
@@ -254,12 +250,6 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		       dsi_display->name, rc);
 		goto error;
 	}
-
-#ifdef CONFIG_DRM_SDE_EXPO
-	if(panel->dimlayer_exposure) {
-		bl_temp = expo_map_dim_level((u32)bl_temp, dsi_display);
-	}
-#endif
 
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
 	if (rc)
@@ -5733,159 +5723,6 @@ static int dsi_display_pre_acquire(void *data)
 	return 0;
 }
 
-#ifdef CONFIG_HBM
-static ssize_t sysfs_hbm_store(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct dsi_display *display = dev_get_drvdata(dev);
-	if (!display->panel)
-		return 0;
-
-	return scnprintf(buf, PAGE_SIZE, "%d\n", display->panel->hbm_mode);
-}
-
-static ssize_t sysfs_hbm_write(struct device *dev,
-	    struct device_attribute *attr, const char *buf, size_t count)
-{
-	struct dsi_display *display = dev_get_drvdata(dev);
-	int ret, hbm_mode;
-
-	if (!display->panel)
-		return -EINVAL;
-
-	ret = kstrtoint(buf, 10, &hbm_mode);
-	if (ret) {
-		DSI_ERR("kstrtoint failed. ret=%d\n", ret);
-		return ret;
-	}
-
-	mutex_lock(&display->display_lock);
-
-	display->panel->hbm_mode = hbm_mode;
-	if (!dsi_panel_initialized(display->panel))
-		goto error;
-
-	ret = dsi_display_clk_ctrl(display->dsi_clk_handle,
-			DSI_CORE_CLK, DSI_CLK_ON);
-	if (ret) {
-		DSI_ERR("[%s] failed to enable DSI core clocks, rc=%d\n",
-		       display->name, ret);
-		goto error;
-	}
-
-	ret = dsi_panel_apply_hbm_mode(display->panel);
-	if (ret)
-		DSI_ERR("unable to set hbm mode\n");
-
-	ret = dsi_display_clk_ctrl(display->dsi_clk_handle,
-			DSI_CORE_CLK, DSI_CLK_OFF);
-	if (ret) {
-		DSI_ERR("[%s] failed to disable DSI core clocks, rc=%d\n",
-		       display->name, ret);
-		goto error;
-	}
-error:
-	mutex_unlock(&display->display_lock);
-	return ret == 0 ? count : ret;
-}
-#endif
-
-#ifdef CONFIG_DRM_SDE_EXPO
-static ssize_t sysfs_dimlayer_exposure_read(struct device *dev,
-	struct device_attribute *attr, char *buf)
-{
-	struct dsi_display *display;
-	struct dsi_panel *panel;
-	bool status;
-
-	display = dev_get_drvdata(dev);
-	if (!display) {
-		pr_err("Invalid display\n");
-		return -EINVAL;
-	}
-
-	panel = display->panel;
-
-	mutex_lock(&panel->panel_lock);
-	status = panel->dimlayer_exposure;
-	mutex_unlock(&panel->panel_lock);
-
-	return snprintf(buf, PAGE_SIZE, "%d\n", status);
-}
-
-static ssize_t sysfs_dimlayer_exposure_write(struct device *dev,
-	struct device_attribute *attr, const char *buf, size_t count)
-{
-	struct dsi_display *display;
-	struct dsi_panel *panel;
-	struct drm_connector *connector;
-	bool status;
-	int rc = 0;
-
-	display = dev_get_drvdata(dev);
-	if (!display) {
-		pr_err("Invalid display\n");
-		return -EINVAL;
-	}
-
-	rc = kstrtobool(buf, &status);
-	if (rc) {
-		pr_err("%s: kstrtobool failed. rc=%d\n", __func__, rc);
-		return rc;
-	}
-
-	panel = display->panel;
-
-	panel->dimlayer_exposure = status;
-	dsi_display_set_backlight(connector, display, panel->bl_config.bl_level);
-
-	return count;
-}
-#endif
-
-#ifdef CONFIG_HBM
-static DEVICE_ATTR(hbm, 0644,
-                        sysfs_hbm_store,
-                        sysfs_hbm_write);
-#endif
-
-#ifdef CONFIG_DRM_SDE_EXPO
-static DEVICE_ATTR(dimlayer_exposure, 0644,
-			sysfs_dimlayer_exposure_read,
-			sysfs_dimlayer_exposure_write);
-#endif
-
-static struct attribute *display_fs_attrs[] = {
-#ifdef CONFIG_DRM_SDE_EXPO
-	&dev_attr_dimlayer_exposure.attr,
-#endif
-#ifdef CONFIG_HBM
-	&dev_attr_hbm.attr,
-#endif
-	NULL,
-};
-static struct attribute_group display_fs_attrs_group = {
-	.attrs = display_fs_attrs,
-};
-
-static int dsi_display_sysfs_init(struct dsi_display *display)
-{
-	int rc = 0;
-	struct device *dev = &display->pdev->dev;
-
-	rc = sysfs_create_group(&dev->kobj, &display_fs_attrs_group);
-	if (rc)
-		pr_err("failed to create display device attributes");
-
-	return rc;
-}
-static int dsi_display_sysfs_deinit(struct dsi_display *display)
-{
-	struct device *dev = &display->pdev->dev;
-	
-	return 0;
-}
-
 int dsi_display_get_fps(struct dsi_display *display, u32 *fps)
 {
 	struct dsi_display_mode *cur_mode = NULL;
@@ -6036,12 +5873,6 @@ static int dsi_display_bind(struct device *dev,
 
 	atomic_set(&display->clkrate_change_pending, 0);
 	display->cached_clk_rate = 0;
-
-	rc = dsi_display_sysfs_init(display);
-	if (rc) {
-		DSI_ERR("[%s] sysfs init failed, rc=%d\n", display->name, rc);
-		goto error;
-	}
 
 	memset(&info, 0x0, sizeof(info));
 
@@ -6194,7 +6025,6 @@ error_ctrl_deinit:
 		dsi_ctrl_put(display_ctrl->ctrl);
 		dsi_phy_put(display_ctrl->phy);
 	}
-	(void)dsi_display_sysfs_deinit(display);
 	(void)dsi_display_debugfs_deinit(display);
 error:
 	mutex_unlock(&display->display_lock);

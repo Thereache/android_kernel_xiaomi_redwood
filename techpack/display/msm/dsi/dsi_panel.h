@@ -272,8 +272,6 @@ struct dsi_panel {
 	int power_mode;
 	enum dsi_panel_physical_type panel_type;
 
-	int hbm_mode;
-
 	struct dsi_tlmm_gpio *tlmm_gpio;
 	u32 tlmm_gpio_count;
 
@@ -289,10 +287,6 @@ struct dsi_panel {
 	bool fod_hbm_requested;
 	bool fod_ui;
 	int local_hbm_on_1000nit_51_index;
-	
-#ifdef CONFIG_DRM_SDE_EXPO
-	bool dimlayer_exposure;
-#endif
 };
 
 static inline bool dsi_panel_ulps_feature_enabled(struct dsi_panel *panel)
@@ -435,7 +429,6 @@ int dsi_panel_get_fod_hbm(struct dsi_panel *panel);
 int dsi_panel_apply_requested_fod_hbm(struct dsi_panel *panel);
 void dsi_panel_set_fod_ui(struct dsi_panel *panel, bool status);
 void dsi_panel_request_fod_hbm(struct dsi_panel *panel, bool status);
-int dsi_panel_apply_hbm_mode(struct dsi_panel *panel);
 
 int dsi_backlight_update_dpms(struct dsi_backlight_config *bl, int power_state);
 #endif /* _DSI_PANEL_H_ */
